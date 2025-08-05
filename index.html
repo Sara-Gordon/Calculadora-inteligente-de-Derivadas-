@@ -6,6 +6,7 @@
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -19,7 +20,7 @@
     }
     .input-section, .output-section {
       margin: 20px auto;
-      max-width: 600px;
+      max-width: 700px;
       background: #fff0f5;
       border-radius: 12px;
       padding: 20px;
@@ -72,19 +73,23 @@
     <!-- Aquí se mostrarán los pasos -->
   </div>
 
-  <canvas id="grafico" width="600" height="400"></canvas>
+  <div class="output-section">
+    <canvas id="grafico" width="700" height="450"></canvas>
+  </div>
 
   <script>
     function resolverDerivada() {
-      const funcionInput = document.getElementById("funcion").value;
+      const expr = document.getElementById("funcion").value;
       const resultadoDiv = document.getElementById("resultado");
-      const f = x => Math.pow(x, 2);  // Cambiar esto para más funciones
-      const h = 0.0001;
-      const derivada = x => (f(x + h) - f(x)) / h;
 
-      const pasosHTML = `
+      const parser = math.parser();
+      let f = (x) => math.evaluate(expr, {x});
+      let h = 0.00001;
+      let df = (x) => (f(x + h) - f(x)) / h;
+
+      let pasosHTML = `
         <div class="step">
-          <strong>Paso 1:</strong> Identificamos la función \( f(x) = ${funcionInput} \)
+          <strong>Paso 1:</strong> Identificamos la función \( f(x) = ${expr} \)
         </div>
         <div class="step">
           <strong>Paso 2:</strong> Usamos la fórmula del primer principio:
@@ -92,62 +97,60 @@
         </div>
         <div class="step">
           <strong>Paso 3:</strong> Sustituimos \( f(x) \) en la fórmula:
-          $$ f'(x) = \lim_{h \to 0} \frac{(${funcionInput.replace('x', '(x+h)')}) - (${funcionInput})}{h} $$
+          $$ f'(x) = \lim_{h \to 0} \frac{(${expr.replace(/x/g, '(x+h)')}) - (${expr})}{h} $$
         </div>
         <div class="step">
-          <strong>Paso 4:</strong> Desarrollamos \( (x+h)^2 \):
-          $$ = \lim_{h \to 0} \frac{x^2 + 2xh + h^2 - x^2}{h} $$
+          <strong>Paso 4:</strong> Evaluamos numéricamente con h pequeño (por ejemplo, h = 0.00001)
         </div>
         <div class="step">
-          <strong>Paso 5:</strong> Simplificamos términos semejantes:
-          $$ = \lim_{h \to 0} \frac{2xh + h^2}{h} $$
+          <strong>Paso 5:</strong> Calculamos el valor aproximado de la derivada en x = 1:
+          $$ f'(1) \approx \frac{f(1+h) - f(1)}{h} = \frac{${f(1 + h).toFixed(5)} - ${f(1).toFixed(5)}}{${h}} = ${df(1).toFixed(5)} $$
         </div>
         <div class="step">
-          <strong>Paso 6:</strong> Factorizamos h:
-          $$ = \lim_{h \to 0} \frac{h(2x + h)}{h} $$
+          <strong>Paso 6:</strong> Aplicamos la regla de la potencia si es aplicable:<br>
+          \( \frac{d}{dx}(x^n) = nx^{n-1} \)
         </div>
         <div class="step">
-          <strong>Paso 7:</strong> Simplificamos y aplicamos el límite:
-          $$ = \lim_{h \to 0} (2x + h) = 2x $$
+          <strong>Paso 7:</strong> Derivada simbólica usando álgebra:<br>
+          \( f'(x) = ${math.derivative(expr, 'x').toString()} \)
         </div>
         <div class="step">
-          <strong>Paso 8:</strong> Resultado final:
-          $$ f'(x) = 2x $$
-          <br><br>
-          <em>Además, usamos la <strong>Regla de la Potencia</strong>: si \( f(x) = x^n \), entonces \( f'(x) = nx^{n-1} \)</em>
-        </div>
-      `;
+          <strong>Paso 8:</strong> Interpretación: la derivada representa la pendiente instantánea de la función.
+        </div>`;
 
       resultadoDiv.innerHTML = pasosHTML;
       MathJax.typeset();
 
       // Graficar
-      const xValores = [];
-      const yOriginal = [];
-      const yDerivada = [];
-
-      for (let x = -10; x <= 10; x += 0.5) {
-        xValores.push(x);
-        yOriginal.push(f(x));
-        yDerivada.push(derivada(x));
+      const x = [], y = [], dy = [];
+      for (let i = -10; i <= 10; i += 0.5) {
+        x.push(i);
+        try {
+          y.push(f(i));
+          dy.push(df(i));
+        } catch (e) {
+          y.push(null);
+          dy.push(null);
+        }
       }
 
       const ctx = document.getElementById("grafico").getContext("2d");
       new Chart(ctx, {
         type: 'line',
         data: {
-          labels: xValores,
+          labels: x,
           datasets: [
             {
               label: 'f(x)',
-              data: yOriginal,
-              borderColor: 'rgba(255, 99, 132, 1)',
+              data: y,
+              borderColor: 'deeppink',
               fill: false
             },
             {
               label: "f'(x)",
-              data: yDerivada,
-              borderColor: 'rgba(54, 162, 235, 1)',
+              data: dy,
+              borderColor: 'purple',
+              borderDash: [5,5],
               fill: false
             }
           ]
@@ -155,21 +158,21 @@
         options: {
           scales: {
             x: {
-              grid: {
-                display: true
-              },
               title: {
                 display: true,
                 text: 'x'
+              },
+              grid: {
+                display: true
               }
             },
             y: {
-              grid: {
-                display: true
-              },
               title: {
                 display: true,
                 text: 'y'
+              },
+              grid: {
+                display: true
               }
             }
           }
@@ -179,3 +182,4 @@
   </script>
 </body>
 </html>
+
