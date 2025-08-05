@@ -5,7 +5,7 @@
   <title>Derivada Paso a Paso</title>
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
   <style>
     body {
@@ -55,8 +55,8 @@
       margin-top: 15px;
       border-radius: 8px;
     }
-    canvas {
-      margin-top: 30px;
+    #grafico {
+      margin-top: 40px;
     }
   </style>
 </head>
@@ -74,7 +74,7 @@
   </div>
 
   <div class="output-section">
-    <canvas id="grafico" width="700" height="450"></canvas>
+    <div id="grafico"></div>
   </div>
 
   <script>
@@ -121,62 +121,41 @@
       resultadoDiv.innerHTML = pasosHTML;
       MathJax.typeset();
 
-      // Graficar
+      // Gráfica con Plotly
       const x = [], y = [], dy = [];
-      for (let i = -10; i <= 10; i += 0.5) {
-        x.push(i);
+      for (let i = -10; i <= 10; i += 0.2) {
         try {
+          x.push(i);
           y.push(f(i));
           dy.push(df(i));
         } catch (e) {
+          x.push(i);
           y.push(null);
           dy.push(null);
         }
       }
 
-      const ctx = document.getElementById("grafico").getContext("2d");
-      new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: x,
-          datasets: [
-            {
-              label: 'f(x)',
-              data: y,
-              borderColor: 'deeppink',
-              fill: false
-            },
-            {
-              label: "f'(x)",
-              data: dy,
-              borderColor: 'purple',
-              borderDash: [5,5],
-              fill: false
-            }
-          ]
+      Plotly.newPlot('grafico', [
+        {
+          x: x,
+          y: y,
+          mode: 'lines',
+          name: 'f(x)',
+          line: { color: 'deeppink' }
         },
-        options: {
-          scales: {
-            x: {
-              title: {
-                display: true,
-                text: 'x'
-              },
-              grid: {
-                display: true
-              }
-            },
-            y: {
-              title: {
-                display: true,
-                text: 'y'
-              },
-              grid: {
-                display: true
-              }
-            }
-          }
+        {
+          x: x,
+          y: dy,
+          mode: 'lines',
+          name: "f'(x)",
+          line: { color: 'purple', dash: 'dot' }
         }
+      ], {
+        title: 'Gráfica de f(x) y su derivada',
+        xaxis: { title: 'x', showgrid: true },
+        yaxis: { title: 'y', showgrid: true },
+        plot_bgcolor: '#fff0f6',
+        paper_bgcolor: '#fff0f6'
       });
     }
   </script>
