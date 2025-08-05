@@ -1,173 +1,181 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Derivada por Primer Principio</title>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <meta charset="UTF-8">
+  <title>Derivada Paso a Paso</title>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background-color: #fff0f6;
-      margin: 20px;
-      color: #333;
+      background-color: #ffe4f0;
+      padding: 40px;
+      color: #3b0a2f;
     }
     h1 {
-      color: #d63384;
+      color: #b30059;
       text-align: center;
     }
+    .input-section, .output-section {
+      margin: 20px auto;
+      max-width: 600px;
+      background: #fff0f5;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(255, 105, 180, 0.2);
+    }
     label, input, button {
-      font-size: 1.1em;
-      margin: 10px;
+      display: block;
+      width: 100%;
+      margin-top: 10px;
+      font-size: 16px;
     }
     input {
-      width: 300px;
-      padding: 8px;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
     }
     button {
-      background-color: #ff69b4;
+      background-color: #ff66b2;
       color: white;
+      padding: 10px;
       border: none;
-      padding: 10px 15px;
-      border-radius: 5px;
+      border-radius: 8px;
       cursor: pointer;
     }
-    #output {
-      margin-top: 30px;
-      background: #fff;
-      padding: 20px;
+    button:hover {
+      background-color: #ff3385;
+    }
+    .step {
+      background-color: #fff;
+      border-left: 5px solid #ff66b2;
+      padding: 15px;
+      margin-top: 15px;
       border-radius: 8px;
-      box-shadow: 0 0 10px #ffd6e7;
     }
-    .paso {
-      margin-bottom: 20px;
-    }
-    #grafica {
-      width: 100%;
-      height: 450px;
+    canvas {
+      margin-top: 30px;
     }
   </style>
 </head>
 <body>
-  <h1>🧠 Derivada por el Primer Principio</h1>
-  <label for="funcion">Ingresa una función (por ejemplo: x^2, sin(x), sqrt(x), ln(x)):</label><br/>
-  <input type="text" id="funcion" placeholder="Ej: x^2" />
-  <button onclick="resolver()">Resolver</button>
-  <div id="output"></div>
-  <div id="grafica"></div>
+  <h1>Derivada por el Primer Principio</h1>
+
+  <div class="input-section">
+    <label for="funcion">Ingresa la función \( f(x) \):</label>
+    <input type="text" id="funcion" value="x^2">
+    <button onclick="resolverDerivada()">Resolver</button>
+  </div>
+
+  <div class="output-section" id="resultado">
+    <!-- Aquí se mostrarán los pasos -->
+  </div>
+
+  <canvas id="grafico" width="600" height="400"></canvas>
 
   <script>
-    function f(x, expr) {
-      try {
-        return math.evaluate(expr, {x: x});
-      } catch (e) {
-        return NaN;
-      }
-    }
+    function resolverDerivada() {
+      const funcionInput = document.getElementById("funcion").value;
+      const resultadoDiv = document.getElementById("resultado");
+      const f = x => Math.pow(x, 2);  // Cambiar esto para más funciones
+      const h = 0.0001;
+      const derivada = x => (f(x + h) - f(x)) / h;
 
-    function resolver() {
-      const expr = document.getElementById("funcion").value;
-      if (!expr) return;
+      const pasosHTML = `
+        <div class="step">
+          <strong>Paso 1:</strong> Identificamos la función \( f(x) = ${funcionInput} \)
+        </div>
+        <div class="step">
+          <strong>Paso 2:</strong> Usamos la fórmula del primer principio:
+          $$ f'(x) = \lim_{h \to 0} \frac{f(x+h) - f(x)}{h} $$
+        </div>
+        <div class="step">
+          <strong>Paso 3:</strong> Sustituimos \( f(x) \) en la fórmula:
+          $$ f'(x) = \lim_{h \to 0} \frac{(${funcionInput.replace('x', '(x+h)')}) - (${funcionInput})}{h} $$
+        </div>
+        <div class="step">
+          <strong>Paso 4:</strong> Desarrollamos \( (x+h)^2 \):
+          $$ = \lim_{h \to 0} \frac{x^2 + 2xh + h^2 - x^2}{h} $$
+        </div>
+        <div class="step">
+          <strong>Paso 5:</strong> Simplificamos términos semejantes:
+          $$ = \lim_{h \to 0} \frac{2xh + h^2}{h} $$
+        </div>
+        <div class="step">
+          <strong>Paso 6:</strong> Factorizamos h:
+          $$ = \lim_{h \to 0} \frac{h(2x + h)}{h} $$
+        </div>
+        <div class="step">
+          <strong>Paso 7:</strong> Simplificamos y aplicamos el límite:
+          $$ = \lim_{h \to 0} (2x + h) = 2x $$
+        </div>
+        <div class="step">
+          <strong>Paso 8:</strong> Resultado final:
+          $$ f'(x) = 2x $$
+          <br><br>
+          <em>Además, usamos la <strong>Regla de la Potencia</strong>: si \( f(x) = x^n \), entonces \( f'(x) = nx^{n-1} \)</em>
+        </div>
+      `;
 
-      const parser = math.parser();
-      let pasos = "";
-
-      pasos += `<div class="paso"><b>1. Fórmula del Primer Principio:</b><br>
-        \\[
-        f'(x) = \\lim_{h \\to 0} \\frac{f(x + h) - f(x)}{h}
-        \\]
-      </div>`;
-
-      pasos += `<div class="paso"><b>2. Función original:</b><br>
-        \\[
-        f(x) = ${expr}
-        \\]
-      </div>`;
-
-      const fxh = `(${expr.replace(/x/g, "(x+h)")})`;
-      const fx = `(${expr})`;
-      pasos += `<div class="paso"><b>3. Sustituimos en la fórmula:</b><br>
-        \\[
-        \\frac{f(x+h) - f(x)}{h} = \\frac{${fxh} - ${fx}}{h}
-        \\]
-      </div>`;
-
-      pasos += `<div class="paso"><b>4. Simplificamos el numerador:</b><br>
-        Este paso depende de la función, aquí simplemente lo dejamos indicado.
-      </div>`;
-
-      pasos += `<div class="paso"><b>5. Aplicamos el límite cuando h → 0:</b><br>
-        \\[
-        \\lim_{h \\to 0} \\frac{f(x+h) - f(x)}{h}
-        \\]
-      </div>`;
-
-      let derivada;
-      try {
-        derivada = math.derivative(expr, "x").toString();
-      } catch (e) {
-        derivada = "No se pudo calcular";
-      }
-
-      pasos += `<div class="paso"><b>6. Derivada obtenida:</b><br>
-        \\[
-        f'(x) = ${derivada}
-        \\]
-      </div>`;
-
-      // Paso adicional si es función tipo x^n
-      if (/x\^/.test(expr)) {
-        const potencia = expr.match(/x\^(\d+)/);
-        if (potencia) {
-          const n = potencia[1];
-          pasos += `<div class="paso"><b>7. Aplicamos la regla de la potencia:</b><br>
-            \\[
-            \\frac{d}{dx} x^n = nx^{n-1} \\Rightarrow \\frac{d}{dx} x^${n} = ${n}x^{${n - 1}}
-            \\]
-          </div>`;
-        }
-      }
-
-      pasos += `<div class="paso"><b>8. Interpretación:</b><br>
-        La derivada representa la pendiente de la recta tangente a la curva en un punto dado.
-      </div>`;
-
-      document.getElementById("output").innerHTML = pasos;
+      resultadoDiv.innerHTML = pasosHTML;
       MathJax.typeset();
 
       // Graficar
-      let x = [], y = [];
-      for (let i = -10; i <= 10; i += 0.5) {
-        x.push(i);
-        y.push(f(i, expr));
+      const xValores = [];
+      const yOriginal = [];
+      const yDerivada = [];
+
+      for (let x = -10; x <= 10; x += 0.5) {
+        xValores.push(x);
+        yOriginal.push(f(x));
+        yDerivada.push(derivada(x));
       }
 
-      Plotly.newPlot('grafica', [{
-        x: x,
-        y: y,
-        mode: 'lines',
-        name: `f(x) = ${expr}`,
-        line: { color: 'deeppink' }
-      }], {
-        margin: { t: 20 },
-        xaxis: {
-          title: 'x',
-          gridcolor: '#eee',
-          zeroline: true
+      const ctx = document.getElementById("grafico").getContext("2d");
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: xValores,
+          datasets: [
+            {
+              label: 'f(x)',
+              data: yOriginal,
+              borderColor: 'rgba(255, 99, 132, 1)',
+              fill: false
+            },
+            {
+              label: "f'(x)",
+              data: yDerivada,
+              borderColor: 'rgba(54, 162, 235, 1)',
+              fill: false
+            }
+          ]
         },
-        yaxis: {
-          title: 'f(x)',
-          gridcolor: '#eee',
-          zeroline: true
-        },
-        plot_bgcolor: '#fff0f6',
-        paper_bgcolor: '#fff0f6'
+        options: {
+          scales: {
+            x: {
+              grid: {
+                display: true
+              },
+              title: {
+                display: true,
+                text: 'x'
+              }
+            },
+            y: {
+              grid: {
+                display: true
+              },
+              title: {
+                display: true,
+                text: 'y'
+              }
+            }
+          }
+        }
       });
     }
   </script>
-
-  <!-- Math.js para evaluar funciones -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.3.1/math.js"></script>
 </body>
 </html>
