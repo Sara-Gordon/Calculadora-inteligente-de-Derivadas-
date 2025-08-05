@@ -2,186 +2,108 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Derivadas paso a paso 🌸</title>
-  <script src="https://cdn.jsdelivr.net/npm/mathjs@11.11.0/lib/browser/math.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Derivadas Paso a Paso</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <style>
     body {
-      background-color: #ffe6f0;
       font-family: 'Segoe UI', sans-serif;
-      color: #333;
-      margin: 40px;
+      background-color: #fff0f5;
+      color: #4b006e;
+      padding: 20px;
     }
-    h1 {
-      color: #cc3366;
-      text-align: center;
-    }
-    .container {
-      max-width: 800px;
-      margin: auto;
-      background: #fff0f5;
-      padding: 25px;
-      border-radius: 20px;
-      box-shadow: 0 0 10px #f0bcd4;
-    }
-    input {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      font-size: 18px;
+    input, button {
+      font-size: 16px;
+      padding: 8px;
       border-radius: 10px;
-      border: 1px solid #ccc;
+      border: 1px solid #cc66a0;
     }
     button {
-      background-color: #cc3366;
+      background-color: #ff99cc;
       color: white;
-      padding: 12px 20px;
       border: none;
-      border-radius: 10px;
-      font-size: 18px;
       cursor: pointer;
-      margin-bottom: 20px;
     }
-    button:hover {
-      background-color: #b82e5d;
+    h1 {
+      color: #d63384;
     }
-    #pasos {
-      background: #fff;
-      border-radius: 15px;
-      padding: 20px;
-      border: 1px solid #ffcce0;
-      white-space: pre-wrap;
+    .step {
+      background: #ffe6f0;
+      margin: 10px 0;
+      padding: 15px;
+      border-radius: 10px;
+      border-left: 5px solid #d63384;
     }
-    canvas {
+    #grafico {
       margin-top: 30px;
-      background: #fff;
-      border: 1px solid #ddd;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>📘 Derivada paso a paso</h1>
-    <input id="funcion" placeholder="Escribe la función, ej: x^2, sin(x), e^x" />
-    <button onclick="resolverDerivada()">Resolver</button>
-    <div id="pasos"></div>
-    <canvas id="grafica" width="700" height="400"></canvas>
-  </div>
+  <h1>📘 Derivada paso a paso</h1>
+  <label for="funcion">Ingresa una función como <b>x^2</b>, <b>e^x</b>, <b>1/x</b>:</label><br>
+  <input type="text" id="funcion" placeholder="Ej: x^2">
+  <button onclick="resolverDerivada()">Resolver</button>
+
+  <div id="resultado"></div>
+  <div id="grafico"></div>
 
   <script>
-    function tipoFuncion(expr) {
-      if (expr.includes('sin') || expr.includes('cos') || expr.includes('tan')) return 'Trigonométrica';
-      if (expr.includes('log') || expr.includes('ln')) return 'Logarítmica';
-      if (expr.includes('e^')) return 'Exponencial';
-      if (expr.includes('/') || expr.includes('1/')) return 'Racional';
-      if (expr.includes('sqrt')) return 'Radical';
-      return 'Polinómica';
-    }
-
     function resolverDerivada() {
-      const funcion = document.getElementById('funcion').value;
-      let pasosHTML = "";
-      try {
-        const parsed = math.parse(funcion);
-        const f = parsed.compile();
-        const derivada = math.derivative(funcion, 'x');
-        const tipo = tipoFuncion(funcion);
+      const f = document.getElementById("funcion").value;
+      const resultadoDiv = document.getElementById("resultado");
+      const graficoDiv = document.getElementById("grafico");
+      resultadoDiv.innerHTML = "";
+      graficoDiv.innerHTML = "";
 
-        pasosHTML += `🟣 Tipo de función: ${tipo}\n\n`;
-        pasosHTML += `📌 Paso 1: Identificamos la función: f(x) = ${funcion}\n`;
-        pasosHTML += `📌 Paso 2: Calculamos la derivada formal usando reglas\n`;
-        pasosHTML += `      👉 f'(x) = ${derivada.toString()}\n`;
+      if (f === "x^2") {
+        resultadoDiv.innerHTML += `<div class='step'><b>1. Función original:</b> f(x) = x²</div>`;
+        resultadoDiv.innerHTML += `<div class='step'><b>2. Tipo de función:</b> Polinómica</div>`;
+        resultadoDiv.innerHTML += `<div class='step'><b>3. Usamos la definición de derivada:</b><br>f'(x) = lim h→0 [(x + h)² - x²] / h</div>`;
+        resultadoDiv.innerHTML += `<div class='step'><b>4. Desarrollo del binomio:</b><br>(x + h)² = x² + 2xh + h²</div>`;
+        resultadoDiv.innerHTML += `<div class='step'><b>5. Sustitución en la fórmula:</b><br>[(x² + 2xh + h²) - x²] / h = (2xh + h²) / h</div>`;
+        resultadoDiv.innerHTML += `<div class='step'><b>6. Simplificamos:</b><br>2xh/h + h²/h = 2x + h</div>`;
+        resultadoDiv.innerHTML += `<div class='step'><b>7. Aplicamos el límite:</b><br>lim h→0 (2x + h) = 2x</div>`;
+        resultadoDiv.innerHTML += `<div class='step'><b>8. Derivada final:</b><br><b>f'(x) = 2x</b></div>`;
+        resultadoDiv.innerHTML += `<div class='step'><b>📚 Regla de la Potencia:</b> Si f(x) = xⁿ, entonces f'(x) = n·xⁿ⁻¹<br>En este caso: f(x) = x² → f'(x) = 2x¹ = 2x ✅</div>`;
 
-        // Paso 3: Elegimos Δx = h y punto a
-        const a = 2;
-        const h = 0.001;
-        const x = a + h;
-
-        pasosHTML += `📌 Paso 3: Usamos la fórmula del proceso largo:\n`;
-        pasosHTML += `      f'(a) = [f(a+h) - f(a)] / h\n`;
-        pasosHTML += `      donde a = ${a} y h = ${h}\n`;
-
-        // Paso 4: Calculamos f(a)
-        const fa = f.evaluate({x: a});
-        pasosHTML += `📌 Paso 4: Calculamos f(${a}) = ${fa.toFixed(6)}\n`;
-
-        // Paso 5: Calculamos f(a+h)
-        const faxh = f.evaluate({x});
-        pasosHTML += `📌 Paso 5: Calculamos f(${a}+${h}) = f(${x}) = ${faxh.toFixed(6)}\n`;
-
-        // Paso 6: Sustituimos en la fórmula
-        pasosHTML += `📌 Paso 6: Sustituimos en la fórmula:\n`;
-        pasosHTML += `      f'(${a}) = [${faxh.toFixed(6)} - ${fa.toFixed(6)}] / ${h}\n`;
-
-        // Paso 7: Restamos numerador
-        const numerador = faxh - fa;
-        pasosHTML += `📌 Paso 7: Calculamos el numerador: ${faxh.toFixed(6)} - ${fa.toFixed(6)} = ${numerador.toFixed(6)}\n`;
-
-        // Paso 8: Dividimos entre h
-        const resultado = numerador / h;
-        pasosHTML += `📌 Paso 8: Derivada aproximada: ${numerador.toFixed(6)} / ${h} = ${resultado.toFixed(6)}\n`;
-
-        // Paso 9: Confirmamos con derivada formal
-        const derivCompilada = derivada.compile();
-        const resultadoFormal = derivCompilada.evaluate({x: a});
-        pasosHTML += `📌 Paso 9: Derivada exacta según fórmula formal: f'(${a}) = ${resultadoFormal.toFixed(6)}\n`;
-
-        document.getElementById('pasos').innerText = pasosHTML;
-
-        // Graficar
-        const ctx = document.getElementById('grafica').getContext('2d');
-        const labels = [], valores = [], derivadas = [];
-        for (let i = a - 4; i <= a + 4; i += 0.2) {
-          labels.push(i.toFixed(2));
-          valores.push(f.evaluate({x: i}));
-          derivadas.push(derivCompilada.evaluate({x: i}));
+        // Gráfico
+        const x = [];
+        const fx = [];
+        const dfx = [];
+        for (let i = -10; i <= 10; i += 0.5) {
+          x.push(i);
+          fx.push(i * i);
+          dfx.push(2 * i);
         }
 
-        if (window.miGrafico) window.miGrafico.destroy();
-        window.miGrafico = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: labels,
-            datasets: [
-              {
-                label: 'f(x)',
-                data: valores,
-                borderColor: '#cc3366',
-                borderWidth: 2,
-                fill: false,
-              },
-              {
-                label: "f'(x)",
-                data: derivadas,
-                borderColor: '#3366cc',
-                borderDash: [5, 5],
-                borderWidth: 2,
-                fill: false,
-              }
-            ]
-          },
-          options: {
-            scales: {
-              x: {
-                grid: { color: '#ddd' },
-                title: { display: true, text: 'x' }
-              },
-              y: {
-                grid: { color: '#ddd' },
-                title: { display: true, text: 'f(x)' }
-              }
-            },
-            plugins: {
-              legend: {
-                labels: { font: { size: 14 } }
-              }
-            }
-          }
-        });
+        const trace1 = {
+          x: x,
+          y: fx,
+          mode: 'lines',
+          name: 'f(x) = x²',
+          line: { color: 'deeppink' }
+        };
 
-      } catch (err) {
-        document.getElementById('pasos').innerText = '❌ Error al procesar la función. Intenta escribirla como: x^2, sin(x), e^x, log(x), sqrt(x)';
-        console.error(err);
+        const trace2 = {
+          x: x,
+          y: dfx,
+          mode: 'lines',
+          name: "f'(x) = 2x",
+          line: { color: 'purple', dash: 'dot' }
+        };
+
+        const layout = {
+          title: 'Gráfico de f(x) y su derivada',
+          xaxis: { title: 'x', showgrid: true, zeroline: true },
+          yaxis: { title: 'y', showgrid: true, zeroline: true },
+          grid: { rows: 1, columns: 1, pattern: 'independent' },
+          plot_bgcolor: '#fff0f5'
+        };
+
+        Plotly.newPlot('grafico', [trace1, trace2], layout);
+      } else {
+        resultadoDiv.innerHTML = `<div class='step'>⚠️ Solo está habilitada la función <b>x^2</b> por ahora. Pronto se agregarán más funciones.</div>`;
       }
     }
   </script>
