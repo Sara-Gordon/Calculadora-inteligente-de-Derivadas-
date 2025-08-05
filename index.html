@@ -2,188 +2,188 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Derivadas Paso a Paso ✨</title>
+  <title>Derivadas paso a paso 🌸</title>
+  <script src="https://cdn.jsdelivr.net/npm/mathjs@11.11.0/lib/browser/math.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
+      background-color: #ffe6f0;
       font-family: 'Segoe UI', sans-serif;
-      background: #fff0f5;
       color: #333;
-      margin: 0;
-      padding: 0;
-    }
-    header {
-      background-color: #ffc0cb;
-      padding: 20px;
-      text-align: center;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      margin: 40px;
     }
     h1 {
-      color: #b30059;
+      color: #cc3366;
+      text-align: center;
     }
-    main {
-      padding: 20px;
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: #fff0f5;
+      padding: 25px;
+      border-radius: 20px;
+      box-shadow: 0 0 10px #f0bcd4;
     }
-    label, textarea, button {
-      display: block;
-      margin: 10px 0;
-    }
-    textarea {
+    input {
       width: 100%;
-      height: 50px;
-      padding: 10px;
-      border-radius: 5px;
+      padding: 12px;
+      margin: 10px 0;
+      font-size: 18px;
+      border-radius: 10px;
       border: 1px solid #ccc;
-      font-size: 16px;
     }
     button {
-      background-color: #ff69b4;
+      background-color: #cc3366;
       color: white;
+      padding: 12px 20px;
       border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    #output {
-      margin-top: 20px;
-      background-color: #ffe6f0;
-      border: 2px dashed #ffb6c1;
-      padding: 20px;
       border-radius: 10px;
+      font-size: 18px;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+    button:hover {
+      background-color: #b82e5d;
+    }
+    #pasos {
+      background: #fff;
+      border-radius: 15px;
+      padding: 20px;
+      border: 1px solid #ffcce0;
+      white-space: pre-wrap;
     }
     canvas {
-      margin-top: 20px;
-      width: 100%;
-      max-width: 900px;
-      height: 600px;
-      border: 1px solid #ffb6c1;
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-      background-image: linear-gradient(to right, #eee 1px, transparent 1px),
-                        linear-gradient(to bottom, #eee 1px, transparent 1px);
-      background-size: 20px 20px;
+      margin-top: 30px;
+      background: #fff;
+      border: 1px solid #ddd;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Derivadas con el método largo 🧠✨</h1>
-    <p>Explicación paso a paso con gráfico 🌸</p>
-  </header>
-  <main>
-    <label for="funcion">Escribe tu función (ej. x^2, 1/x, sqrt(x), sin(x)):</label>
-    <textarea id="funcion" placeholder="Ejemplo: x^2"></textarea>
+  <div class="container">
+    <h1>📘 Derivada paso a paso</h1>
+    <input id="funcion" placeholder="Escribe la función, ej: x^2, sin(x), e^x" />
     <button onclick="resolverDerivada()">Resolver</button>
-    <div id="output"></div>
-    <canvas id="grafica" width="900" height="600"></canvas>
-  </main>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.5.0/math.js"></script>
+    <div id="pasos"></div>
+    <canvas id="grafica" width="700" height="400"></canvas>
+  </div>
+
   <script>
-    function detectarTipoFuncion(fx) {
-      if (/sin|cos|tan/.test(fx)) return "función trigonométrica";
-      if (/sqrt/.test(fx)) return "función raíz o irracional";
-      if (/\//.test(fx)) return "función racional";
-      if (/log|ln/.test(fx)) return "función logarítmica";
-      if (/e\^/.test(fx)) return "función exponencial";
-      if (/\^/.test(fx)) return "función polinómica";
-      return "función algebraica";
-    }
-
-    function derivadaPasoLargo(fx, variable = 'x') {
-      const tipo = detectarTipoFuncion(fx);
-      const fx_h = fx.split(variable).join(`(${variable} + h)`);
-      return `📘 Tipo de función: ${tipo.toUpperCase()}
-
-📘 Paso 1: Se define la función:
-  f(${variable}) = ${fx}
-  Esto indica que estamos trabajando con una ${tipo}.
-
-📘 Paso 2: Aplicamos la REGLA DE LA POTENCIA si es posible:
-  Si f(${variable}) = ${variable}ⁿ, entonces f'(${variable}) = n·${variable}ⁿ⁻¹
-
-📘 Paso 3: Escribimos la fórmula del cociente incremental:
-  f'(${variable}) = lim(h→0) [f(${variable}+h) - f(${variable})] / h
-
-📘 Paso 4: Sustituimos (x + h) en la función:
-  f(${variable}+h) = ${fx_h}
-
-📘 Paso 5: Formamos la fracción completa:
-  [${fx_h} - (${fx})] / h
-
-📘 Paso 6: Se desarrolla el numerador aplicando identidades y simplificaciones algebraicas.
-
-📘 Paso 7: Se factoriza si es necesario y se cancela h del denominador.
-
-📘 Paso 8: Aplicamos el límite cuando h → 0 para obtener la derivada final.
-
-✅ Resultado final: f'(${variable}) = ... (ver más abajo)`;
+    function tipoFuncion(expr) {
+      if (expr.includes('sin') || expr.includes('cos') || expr.includes('tan')) return 'Trigonométrica';
+      if (expr.includes('log') || expr.includes('ln')) return 'Logarítmica';
+      if (expr.includes('e^')) return 'Exponencial';
+      if (expr.includes('/') || expr.includes('1/')) return 'Racional';
+      if (expr.includes('sqrt')) return 'Radical';
+      return 'Polinómica';
     }
 
     function resolverDerivada() {
-      const fx = document.getElementById('funcion').value;
-      const output = document.getElementById('output');
-      const canvas = document.getElementById('grafica');
-      const ctx = canvas.getContext('2d');
-
-      output.innerHTML = '';
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+      const funcion = document.getElementById('funcion').value;
+      let pasosHTML = "";
       try {
-        const parsed = math.parse(fx);
+        const parsed = math.parse(funcion);
         const f = parsed.compile();
-        const dfx = math.derivative(fx, 'x').toString();
+        const derivada = math.derivative(funcion, 'x');
+        const tipo = tipoFuncion(funcion);
 
-        const explicacion = derivadaPasoLargo(fx);
+        pasosHTML += `🟣 Tipo de función: ${tipo}\n\n`;
+        pasosHTML += `📌 Paso 1: Identificamos la función: f(x) = ${funcion}\n`;
+        pasosHTML += `📌 Paso 2: Calculamos la derivada formal usando reglas\n`;
+        pasosHTML += `      👉 f'(x) = ${derivada.toString()}\n`;
 
-        output.innerHTML = `<pre style="white-space: pre-wrap;">${explicacion}
-📌 Derivada final: f'(x) = ${dfx}</pre>`;
+        // Paso 3: Elegimos Δx = h y punto a
+        const a = 2;
+        const h = 0.001;
+        const x = a + h;
 
-        const xs = math.range(-10, 10, 0.1).toArray();
-        const ys1 = xs.map(x => f.evaluate({ x }));
-        const ys2 = xs.map(x => math.evaluate(dfx, { x }));
+        pasosHTML += `📌 Paso 3: Usamos la fórmula del proceso largo:\n`;
+        pasosHTML += `      f'(a) = [f(a+h) - f(a)] / h\n`;
+        pasosHTML += `      donde a = ${a} y h = ${h}\n`;
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // Paso 4: Calculamos f(a)
+        const fa = f.evaluate({x: a});
+        pasosHTML += `📌 Paso 4: Calculamos f(${a}) = ${fa.toFixed(6)}\n`;
 
-        // Ejes
-        ctx.beginPath();
-        ctx.strokeStyle = '#ccc';
-        ctx.moveTo(canvas.width / 2, 0);
-        ctx.lineTo(canvas.width / 2, canvas.height);
-        ctx.moveTo(0, canvas.height / 2);
-        ctx.lineTo(canvas.width, canvas.height / 2);
-        ctx.stroke();
+        // Paso 5: Calculamos f(a+h)
+        const faxh = f.evaluate({x});
+        pasosHTML += `📌 Paso 5: Calculamos f(${a}+${h}) = f(${x}) = ${faxh.toFixed(6)}\n`;
 
-        // f(x)
-        ctx.beginPath();
-        ctx.strokeStyle = '#ff1493';
-        xs.forEach((x, i) => {
-          const px = canvas.width / 2 + x * 20;
-          const py = canvas.height / 2 - ys1[i] * 20;
-          if (i === 0) ctx.moveTo(px, py);
-          else ctx.lineTo(px, py);
+        // Paso 6: Sustituimos en la fórmula
+        pasosHTML += `📌 Paso 6: Sustituimos en la fórmula:\n`;
+        pasosHTML += `      f'(${a}) = [${faxh.toFixed(6)} - ${fa.toFixed(6)}] / ${h}\n`;
+
+        // Paso 7: Restamos numerador
+        const numerador = faxh - fa;
+        pasosHTML += `📌 Paso 7: Calculamos el numerador: ${faxh.toFixed(6)} - ${fa.toFixed(6)} = ${numerador.toFixed(6)}\n`;
+
+        // Paso 8: Dividimos entre h
+        const resultado = numerador / h;
+        pasosHTML += `📌 Paso 8: Derivada aproximada: ${numerador.toFixed(6)} / ${h} = ${resultado.toFixed(6)}\n`;
+
+        // Paso 9: Confirmamos con derivada formal
+        const derivCompilada = derivada.compile();
+        const resultadoFormal = derivCompilada.evaluate({x: a});
+        pasosHTML += `📌 Paso 9: Derivada exacta según fórmula formal: f'(${a}) = ${resultadoFormal.toFixed(6)}\n`;
+
+        document.getElementById('pasos').innerText = pasosHTML;
+
+        // Graficar
+        const ctx = document.getElementById('grafica').getContext('2d');
+        const labels = [], valores = [], derivadas = [];
+        for (let i = a - 4; i <= a + 4; i += 0.2) {
+          labels.push(i.toFixed(2));
+          valores.push(f.evaluate({x: i}));
+          derivadas.push(derivCompilada.evaluate({x: i}));
+        }
+
+        if (window.miGrafico) window.miGrafico.destroy();
+        window.miGrafico = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: 'f(x)',
+                data: valores,
+                borderColor: '#cc3366',
+                borderWidth: 2,
+                fill: false,
+              },
+              {
+                label: "f'(x)",
+                data: derivadas,
+                borderColor: '#3366cc',
+                borderDash: [5, 5],
+                borderWidth: 2,
+                fill: false,
+              }
+            ]
+          },
+          options: {
+            scales: {
+              x: {
+                grid: { color: '#ddd' },
+                title: { display: true, text: 'x' }
+              },
+              y: {
+                grid: { color: '#ddd' },
+                title: { display: true, text: 'f(x)' }
+              }
+            },
+            plugins: {
+              legend: {
+                labels: { font: { size: 14 } }
+              }
+            }
+          }
         });
-        ctx.stroke();
-        ctx.fillText('🌷 f(x)', 10, 20);
 
-        // f'(x)
-        ctx.beginPath();
-        ctx.strokeStyle = '#993366';
-        xs.forEach((x, i) => {
-          const px = canvas.width / 2 + x * 20;
-          const py = canvas.height / 2 - ys2[i] * 20;
-          if (i === 0) ctx.moveTo(px, py);
-          else ctx.lineTo(px, py);
-        });
-        ctx.stroke();
-        ctx.fillText('🌸 f\'(x)', 10, 40);
-
-      } catch (error) {
-        output.innerHTML = '<p style="color:red;">⚠️ Error: Verifica que la función esté bien escrita.</p>';
+      } catch (err) {
+        document.getElementById('pasos').innerText = '❌ Error al procesar la función. Intenta escribirla como: x^2, sin(x), e^x, log(x), sqrt(x)';
+        console.error(err);
       }
     }
   </script>
 </body>
 </html>
-
