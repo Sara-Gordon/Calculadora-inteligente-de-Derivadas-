@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Derivadas Paso a Paso</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.11.0/math.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -14,132 +16,151 @@
     }
     h1 {
       color: #d63384;
+      text-align: center;
     }
-    input, button {
-      padding: 10px;
-      margin: 5px 0;
-      font-size: 16px;
-    }
-    #resultado, #grafico {
-      margin-top: 20px;
-      background: #fff;
+    .contenedor {
+      max-width: 800px;
+      margin: auto;
+      background-color: #ffe6f0;
       padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
     }
-    canvas {
+    label, input, button {
+      font-size: 1.1em;
+    }
+    input {
       width: 100%;
-      height: 400px;
+      padding: 8px;
+      margin: 10px 0 20px 0;
+      border: 2px solid #f5c2e7;
+      border-radius: 8px;
+    }
+    button {
+      background-color: #d63384;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #c21867;
+    }
+    #resultado {
+      margin-top: 30px;
+      padding: 15px;
+      background-color: #fff;
+      border-radius: 12px;
+      border: 1px solid #f5c2e7;
+    }
+    .paso {
+      margin-bottom: 15px;
+      line-height: 1.6;
+    }
+    #grafico {
+      margin-top: 40px;
     }
   </style>
 </head>
 <body>
-  <h1>✨ Calculadora de Derivadas Paso a Paso ✨</h1>
-  <p>Ingresa una función (ej: x^2, 1/x, raiz(x), e^x, sin(x), ln(x))</p>
-  <input type="text" id="funcion" placeholder="Ej: x^2">
-  <button onclick="resolver()">✨ Resolver ✨</button>
-
-  <div id="resultado"></div>
-  <div id="grafico">
-    <canvas id="canvas"></canvas>
+  <div class="contenedor">
+    <h1>Derivada Paso a Paso ✨</h1>
+    <label for="funcion">Escribe la función (por ejemplo: x^2, 1/x, sqrt(x), sin(x), e^x):</label>
+    <input type="text" id="funcion" placeholder="Ej: x^2">
+    <button onclick="resolverDerivada()">Resolver Derivada</button>
+    <div id="resultado"></div>
+    <div id="grafico"></div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/mathjs@12.0.0/lib/browser/math.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    function resolver() {
-      const entrada = document.getElementById('funcion').value;
-      const resultadoDiv = document.getElementById('resultado');
-      resultadoDiv.innerHTML = '';
+    function resolverDerivada() {
+      const exprInput = document.getElementById("funcion").value;
+      const x = math.symbolicUtils.symbol('x');
 
       try {
-        const f = math.parse(entrada);
-        const df = math.derivative(f, 'x');
+        const expr = math.parse(exprInput);
+        const derivada = math.derivative(expr, 'x');
 
-        // Paso 1
-        resultadoDiv.innerHTML += '<h3>⭐ Paso 1: Identificar el tipo de función</h3>';
-        if (entrada.includes('^')) {
-          resultadoDiv.innerHTML += '<p>Es una función polinómica.</p>';
-        } else if (entrada.includes('1/') || entrada.includes('x^-')) {
-          resultadoDiv.innerHTML += '<p>Es una función racional.</p>';
-        } else if (entrada.includes('raiz') || entrada.includes('sqrt')) {
-          resultadoDiv.innerHTML += '<p>Es una función irracional.</p>';
-        } else if (entrada.includes('sin') || entrada.includes('cos') || entrada.includes('tan')) {
-          resultadoDiv.innerHTML += '<p>Es una función trigonométrica.</p>';
-        } else if (entrada.includes('ln') || entrada.includes('log')) {
-          resultadoDiv.innerHTML += '<p>Es una función logarítmica.</p>';
-        } else if (entrada.includes('e^')) {
-          resultadoDiv.innerHTML += '<p>Es una función exponencial.</p>';
-        } else {
-          resultadoDiv.innerHTML += '<p>Tipo de función no identificado con claridad.</p>';
-        }
+        const pasos = [];
+        pasos.push(`<div class='paso'><strong>PASO 1:</strong> Se identifica la función f(x) = <b>${exprInput}</b></div>`);
+        pasos.push(`<div class='paso'><strong>PASO 2:</strong> Se desea calcular su derivada f'(x)</div>`);
+        pasos.push(`<div class='paso'><strong>PASO 3:</strong> Usamos el límite definido de la derivada:<br> f'(x) = lim<sub>h→0</sub> [(f(x+h) - f(x)) / h]</div>`);
 
-        // Paso 2: Definir f(x)
-        resultadoDiv.innerHTML += '<h3>⭐ Paso 2: Definir f(x)</h3>';
-        resultadoDiv.innerHTML += `<p>f(x) = ${entrada}</p>`;
-
-        // Paso 3: Aplicar la Regla de la Potencia (si aplica)
-        resultadoDiv.innerHTML += '<h3>⭐ Paso 3: Aplicar la Regla de la Potencia</h3>';
-        if (entrada.includes('^')) {
-          resultadoDiv.innerHTML += '<p>Si f(x) = x^n, entonces f′(x) = n * x^(n-1)</p>';
-        } else {
-          resultadoDiv.innerHTML += '<p>No aplica la Regla de la Potencia directamente.</p>';
-        }
-
-        // Paso 4: Derivar f(x)
-        resultadoDiv.innerHTML += '<h3>⭐ Paso 4: Derivar f(x)</h3>';
-        resultadoDiv.innerHTML += `<p>f′(x) = ${df.toString()}</p>`;
-
-        // Paso 5: Interpretar el resultado
-        resultadoDiv.innerHTML += '<h3>⭐ Paso 5: Interpretación</h3>';
-        resultadoDiv.innerHTML += '<p>La derivada representa la pendiente de la recta tangente a la curva en cada punto x.</p>';
-
-        // Paso 6: Evaluación numérica
-        resultadoDiv.innerHTML += '<h3>⭐ Paso 6: Evaluación de valores</h3>';
-        resultadoDiv.innerHTML += '<ul>';
-        for (let x = -2; x <= 2; x++) {
-          const scope = {x};
-          const valor = math.evaluate(df.toString(), scope);
-          resultadoDiv.innerHTML += `<li>f′(${x}) = ${valor.toFixed(2)}</li>`;
-        }
-        resultadoDiv.innerHTML += '</ul>';
-
-        // Paso 7: Gráfica
-        const ctx = document.getElementById('canvas').getContext('2d');
-        const xVals = [], yVals = [];
-        for (let i = -10; i <= 10; i++) {
-          xVals.push(i);
-          yVals.push(math.evaluate(df.toString(), {x: i}));
-        }
-        new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: xVals,
-            datasets: [{
-              label: 'f′(x)',
-              data: yVals,
-              borderColor: '#d63384',
-              backgroundColor: 'rgba(214,51,132,0.2)',
-              tension: 0.3,
-            }]
-          },
-          options: {
-            scales: {
-              x: {
-                grid: { color: '#ddd' },
-                title: { display: true, text: 'x' }
-              },
-              y: {
-                grid: { color: '#ddd' },
-                title: { display: true, text: 'f′(x)' }
-              }
-            }
-          }
+        const fxh = expr.transform(node => {
+          return node.isSymbolNode && node.name === 'x'
+            ? math.parse('(x + h)')
+            : node;
         });
 
-      } catch (e) {
-        resultadoDiv.innerHTML = '<p style="color: red;">Error al procesar la función. Asegúrate de que esté bien escrita (ej: x^2, raiz(x), 1/x, e^x, ln(x), sin(x))</p>';
+        const fxhEvaluado = math.simplify(fxh.toString());
+        const fxEvaluado = math.simplify(expr.toString());
+
+        pasos.push(`<div class='paso'><strong>PASO 4:</strong> Reemplazamos f(x + h):<br> f(x + h) = ${fxhEvaluado}</div>`);
+        pasos.push(`<div class='paso'><strong>PASO 5:</strong> Sustituimos en la fórmula:<br> f'(x) = lim<sub>h→0</sub> [(${fxhEvaluado} - ${fxEvaluado}) / h]</div>`);
+
+        const numerador = math.simplify(`(${fxhEvaluado} - (${fxEvaluado}))`);
+        pasos.push(`<div class='paso'><strong>PASO 6:</strong> Simplificamos el numerador:<br> ${fxhEvaluado} - (${fxEvaluado}) = ${numerador}</div>`);
+
+        const diferencia = math.simplify(`(${numerador}) / h`);
+        pasos.push(`<div class='paso'><strong>PASO 7:</strong> Dividimos entre h:<br> (${numerador}) / h = ${diferencia}</div>`);
+
+        const derivadaPaso8 = math.simplify(diferencia.toString().replace(/h/g, '0'));
+        pasos.push(`<div class='paso'><strong>PASO 8:</strong> Aplicamos el límite cuando h tiende a 0:<br> f'(x) = ${derivada}</div>`);
+
+        pasos.push(`<div class='paso'><strong>Tipo de función:</strong> ${detectarTipoFuncion(exprInput)}</div>`);
+
+        document.getElementById("resultado").innerHTML = pasos.join("<br>");
+
+        graficar(exprInput);
+      } catch (err) {
+        document.getElementById("resultado").innerHTML = `<span style='color: red;'>Error al procesar la función. Intenta escribirla así: x^2, 1/x, sqrt(x), sin(x), e^x</span>`;
+        document.getElementById("grafico").innerHTML = "";
       }
+    }
+
+    function detectarTipoFuncion(funcion) {
+      if (funcion.includes("sin") || funcion.includes("cos") || funcion.includes("tan")) return "Trigonométrica";
+      if (funcion.includes("sqrt") || funcion.includes("^0.5")) return "Radical";
+      if (funcion.includes("1/") || funcion.includes("x^-")) return "Racional";
+      if (funcion.includes("^")) return "Polinómica";
+      if (funcion.includes("e^")) return "Exponencial";
+      return "Otro tipo de función";
+    }
+
+    function graficar(exprInput) {
+      const x = [];
+      const y = [];
+      const expr = math.compile(exprInput);
+
+      for (let i = -10; i <= 10; i += 0.2) {
+        try {
+          x.push(i);
+          y.push(expr.evaluate({x: i}));
+        } catch (e) {
+          x.push(i);
+          y.push(null);
+        }
+      }
+
+      const trace = {
+        x: x,
+        y: y,
+        type: 'scatter',
+        mode: 'lines',
+        name: 'f(x)',
+        line: {color: '#d63384'}
+      };
+
+      const layout = {
+        title: 'Gráfica de f(x)',
+        xaxis: {title: 'x', showgrid: true, zeroline: true},
+        yaxis: {title: 'f(x)', showgrid: true, zeroline: true},
+        plot_bgcolor: '#fff0f5',
+        paper_bgcolor: '#fff0f5'
+      };
+
+      Plotly.newPlot('grafico', [trace], layout);
     }
   </script>
 </body>
