@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Derivadas Paso a Paso ✨</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #fff0f5;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #ffc0cb;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #b30059;
+    }
+    main {
+      padding: 20px;
+    }
+    label, textarea, button {
+      display: block;
+      margin: 10px 0;
+    }
+    textarea {
+      width: 100%;
+      height: 50px;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+    button {
+      background-color: #ff69b4;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #output {
+      margin-top: 20px;
+      background-color: #ffe6f0;
+      border: 2px dashed #ffb6c1;
+      padding: 20px;
+      border-radius: 10px;
+    }
+    canvas {
+      margin-top: 20px;
+      width: 100%;
+      max-width: 900px;
+      height: 600px;
+      border: 1px solid #ffb6c1;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      background-image: linear-gradient(to right, #eee 1px, transparent 1px),
+                        linear-gradient(to bottom, #eee 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Derivadas con el método largo 🧠✨</h1>
+    <p>Explicación paso a paso con gráfico 🌸</p>
+  </header>
+  <main>
+    <label for="funcion">Escribe tu función (ej. x^2, 1/x, sqrt(x), sin(x)):</label>
+    <textarea id="funcion" placeholder="Ejemplo: x^2"></textarea>
+    <button onclick="resolverDerivada()">Resolver</button>
+    <div id="output"></div>
+    <canvas id="grafica" width="900" height="600"></canvas>
+  </main>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.5.0/math.js"></script>
+  <script>
+    function detectarTipoFuncion(fx) {
+      if (/sin|cos|tan/.test(fx)) return "función trigonométrica";
+      if (/sqrt/.test(fx)) return "función raíz o irracional";
+      if (/\//.test(fx)) return "función racional";
+      if (/log|ln/.test(fx)) return "función logarítmica";
+      if (/e\^/.test(fx)) return "función exponencial";
+      if (/\^/.test(fx)) return "función polinómica";
+      return "función algebraica";
+    }
+
+    function derivadaPasoLargo(fx, variable = 'x') {
+      const tipo = detectarTipoFuncion(fx);
+      const fx_h = fx.split(variable).join(`(${variable} + h)`);
+      return `📘 Tipo de función: ${tipo.toUpperCase()}
+
+📘 Paso 1: Se define la función:
+  f(${variable}) = ${fx}
+  Esto indica que estamos trabajando con una ${tipo}.
+
+📘 Paso 2: Aplicamos la REGLA DE LA POTENCIA si es posible:
+  Si f(${variable}) = ${variable}ⁿ, entonces f'(${variable}) = n·${variable}ⁿ⁻¹
+
+📘 Paso 3: Escribimos la fórmula del cociente incremental:
+  f'(${variable}) = lim(h→0) [f(${variable}+h) - f(${variable})] / h
+
+📘 Paso 4: Sustituimos (x + h) en la función:
+  f(${variable}+h) = ${fx_h}
+
+📘 Paso 5: Formamos la fracción completa:
+  [${fx_h} - (${fx})] / h
+
+📘 Paso 6: Se desarrolla el numerador aplicando identidades y simplificaciones algebraicas.
+
+📘 Paso 7: Se factoriza si es necesario y se cancela h del denominador.
+
+📘 Paso 8: Aplicamos el límite cuando h → 0 para obtener la derivada final.
+
+✅ Resultado final: f'(${variable}) = ... (ver más abajo)`;
+    }
+
+    function resolverDerivada() {
+      const fx = document.getElementById('funcion').value;
+      const output = document.getElementById('output');
+      const canvas = document.getElementById('grafica');
+      const ctx = canvas.getContext('2d');
+
+      output.innerHTML = '';
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      try {
+        const parsed = math.parse(fx);
+        const f = parsed.compile();
+        const dfx = math.derivative(fx, 'x').toString();
+
+        const explicacion = derivadaPasoLargo(fx);
+
+        output.innerHTML = `<pre style="white-space: pre-wrap;">${explicacion}
+📌 Derivada final: f'(x) = ${dfx}</pre>`;
+
+        const xs = math.range(-10, 10, 0.1).toArray();
+        const ys1 = xs.map(x => f.evaluate({ x }));
+        const ys2 = xs.map(x => math.evaluate(dfx, { x }));
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Ejes
+        ctx.beginPath();
+        ctx.strokeStyle = '#ccc';
+        ctx.moveTo(canvas.width / 2, 0);
+        ctx.lineTo(canvas.width / 2, canvas.height);
+        ctx.moveTo(0, canvas.height / 2);
+        ctx.lineTo(canvas.width, canvas.height / 2);
+        ctx.stroke();
+
+        // f(x)
+        ctx.beginPath();
+        ctx.strokeStyle = '#ff1493';
+        xs.forEach((x, i) => {
+          const px = canvas.width / 2 + x * 20;
+          const py = canvas.height / 2 - ys1[i] * 20;
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        });
+        ctx.stroke();
+        ctx.fillText('🌷 f(x)', 10, 20);
+
+        // f'(x)
+        ctx.beginPath();
+        ctx.strokeStyle = '#993366';
+        xs.forEach((x, i) => {
+          const px = canvas.width / 2 + x * 20;
+          const py = canvas.height / 2 - ys2[i] * 20;
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        });
+        ctx.stroke();
+        ctx.fillText('🌸 f\'(x)', 10, 40);
+
+      } catch (error) {
+        output.innerHTML = '<p style="color:red;">⚠️ Error: Verifica que la función esté bien escrita.</p>';
+      }
+    }
+  </script>
+</body>
+</html>
